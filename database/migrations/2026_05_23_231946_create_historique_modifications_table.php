@@ -9,18 +9,17 @@ return new class extends Migration {
             $table->id();
             $table->foreignId('etudiant_id')
                   ->constrained('etudiants')
-                  ->onDelete('cascade');
+                  ->cascadeOnDelete();
             $table->foreignId('utilisateur_id')
                   ->constrained('utilisateurs')
-                  ->onDelete('cascade');
+                  ->cascadeOnDelete();
             $table->string('champ_modifie', 100);
-            $table->text('ancienne_valeur');
-            $table->text('nouvelle_valeur');
+            $table->text('ancienne_valeur')->nullable();
+            $table->text('nouvelle_valeur')->nullable();
             $table->dateTime('date_modification');
             $table->timestamps();
         });
     }
-
     public function down(): void {
         Schema::dropIfExists('historique_modifications');
     }

@@ -5,15 +5,14 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration {
     public function up(): void {
-        Schema::create('elements', function (Blueprint $table) {
+        Schema::create('configuration', function (Blueprint $table) {
             $table->id();
-            $table->string('titre', 200);
-            $table->unsignedBigInteger('module_id')->nullable();
+            $table->string('cle', 100)->unique();
+            $table->string('valeur', 255);
             $table->timestamps();
         });
     }
-
     public function down(): void {
-        Schema::dropIfExists('elements');
+        Schema::dropIfExists('configuration');
     }
 };

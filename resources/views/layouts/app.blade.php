@@ -3,585 +3,250 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>@yield('page_title', 'Dashboard') — ENSAH</title>
+    <meta name="csrf-token" content="{{ csrf_token() }}">
+    <title>ENSAH — @yield('title', 'Gestion des Absences')</title>
+    <link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
     <style>
-        :root {
-            --sidebar-bg: #0f172a;
-            --sidebar-hover: rgba(255,255,255,0.06);
-            --accent: #e94560;
-            --accent2: #6366f1;
-            --topbar-bg: #ffffff;
-            --content-bg: #f1f5f9;
-            --card-bg: #ffffff;
-            --text-main: #0f172a;
-            --text-muted: #94a3b8;
-            --border: #e2e8f0;
-        }
-        * { margin:0; padding:0; box-sizing:border-box; }
-        body { background: var(--content-bg); font-family: 'Segoe UI', sans-serif; }
+    :root {
+        --navy: #0f1e3d; --blue: #1a3a6b; --accent: #2d7dd2;
+        --gold: #f0a500; --light: #f4f7fb; --sidebar-w: 260px;
+        --radius: 14px;
+    }
+    * { font-family: 'Sora', sans-serif; box-sizing: border-box; }
+    body { background: var(--light); margin: 0; }
 
-        /* ===== SIDEBAR ===== */
-        .sidebar {
-            width: 260px;
-            min-height: 100vh;
-            background: var(--sidebar-bg);
-            position: fixed;
-            top: 0; left: 0;
-            display: flex;
-            flex-direction: column;
-            z-index: 1000;
-            overflow-y: auto;
-        }
-        .sidebar-brand {
-            padding: 24px 20px 20px;
-            border-bottom: 1px solid rgba(255,255,255,0.06);
-        }
-        .sidebar-brand .brand-icon {
-            width: 40px; height: 40px;
-            background: linear-gradient(135deg, var(--accent), #c73652);
-            border-radius: 10px;
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 1.2rem;
-            color: white;
-            margin-bottom: 10px;
-        }
-        .sidebar-brand h5 {
-            color: white;
-            font-size: 1rem;
-            font-weight: 700;
-            margin: 0;
-        }
-        .sidebar-brand p {
-            color: var(--text-muted);
-            font-size: 0.72rem;
-            margin: 2px 0 0;
-        }
-        .sidebar-section {
-            padding: 20px 20px 6px;
-            color: rgba(255,255,255,0.25);
-            font-size: 0.65rem;
-            text-transform: uppercase;
-            letter-spacing: 1.5px;
-            font-weight: 600;
-        }
-        .sidebar-link {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            padding: 10px 20px;
-            color: rgba(255,255,255,0.6);
-            text-decoration: none;
-            font-size: 0.875rem;
-            border-left: 3px solid transparent;
-            transition: all 0.2s;
-            position: relative;
-        }
-        .sidebar-link i { font-size: 1rem; min-width: 20px; }
-        .sidebar-link:hover {
-            color: white;
-            background: var(--sidebar-hover);
-        }
-        .sidebar-link.active {
-            color: white;
-            background: rgba(233,69,96,0.12);
-            border-left: 3px solid var(--accent);
-        }
-        .sidebar-link .badge-count {
-            margin-left: auto;
-            background: var(--accent);
-            color: white;
-            font-size: 0.65rem;
-            padding: 2px 7px;
-            border-radius: 20px;
-        }
-        .sidebar-bottom {
-            margin-top: auto;
-            padding: 15px 0;
-            border-top: 1px solid rgba(255,255,255,0.06);
-        }
+    .sidebar {
+        position: fixed; top: 0; left: 0; bottom: 0;
+        width: var(--sidebar-w);
+        background: var(--navy);
+        display: flex; flex-direction: column;
+        z-index: 200; overflow-y: auto;
+    }
+    .sidebar-logo {
+        padding: 22px 18px;
+        border-bottom: 1px solid rgba(255,255,255,.08);
+        display: flex; align-items: center; gap: 12px;
+    }
+    .logo-icon {
+        width: 42px; height: 42px; border-radius: 11px;
+        background: linear-gradient(135deg, var(--accent), var(--blue));
+        display: flex; align-items: center; justify-content: center; font-size: 20px;
+    }
+    .logo-text { color: white; font-weight: 700; font-size: .95rem; line-height: 1.3; }
+    .logo-text small { color: rgba(255,255,255,.4); font-size: .68rem; display: block; }
+    .nav-section {
+        padding: 16px 16px 6px;
+        color: rgba(255,255,255,.3);
+        font-size: .65rem; font-weight: 700;
+        letter-spacing: 1.5px; text-transform: uppercase;
+    }
+    .nav-link-item {
+        display: flex; align-items: center; gap: 10px;
+        padding: 10px 14px; margin: 2px 8px; border-radius: 10px;
+        color: rgba(255,255,255,.6);
+        text-decoration: none; font-size: .855rem; font-weight: 500;
+        transition: all .2s;
+    }
+    .nav-link-item:hover { background: rgba(45,125,210,.2); color: white; }
+    .nav-link-item.active { background: var(--accent); color: white; }
+    .nav-icon { width: 20px; text-align: center; font-size: 15px; }
+    .sidebar-footer {
+        margin-top: auto; padding: 14px;
+        border-top: 1px solid rgba(255,255,255,.08);
+    }
+    .user-card {
+        background: rgba(255,255,255,.06); border-radius: 11px;
+        padding: 11px; display: flex; align-items: center; gap: 10px;
+    }
+    .user-avatar {
+        width: 34px; height: 34px; border-radius: 50%;
+        background: var(--accent); color: white;
+        display: flex; align-items: center; justify-content: center;
+        font-weight: 700; font-size: 13px;
+    }
+    .user-name { color: white; font-size: .82rem; font-weight: 600; }
+    .user-role { color: rgba(255,255,255,.4); font-size: .68rem; text-transform: capitalize; }
 
-        /* ===== MAIN ===== */
-        .main-wrapper {
-            margin-left: 260px;
-            min-height: 100vh;
-            display: flex;
-            flex-direction: column;
-        }
+    .main-wrap { margin-left: var(--sidebar-w); min-height: 100vh; }
+    .topbar {
+        background: white; padding: 14px 28px;
+        border-bottom: 1px solid #e9edf3;
+        display: flex; align-items: center; justify-content: space-between;
+        position: sticky; top: 0; z-index: 100;
+    }
+    .topbar-title { font-weight: 700; color: var(--navy); font-size: 1.05rem; }
+    .main-content { padding: 28px; }
 
-        /* ===== TOPBAR ===== */
-        .topbar {
-            background: var(--topbar-bg);
-            padding: 0 30px;
-            height: 65px;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            border-bottom: 1px solid var(--border);
-            position: sticky;
-            top: 0;
-            z-index: 999;
-        }
-        .topbar-left { display: flex; align-items: center; gap: 15px; }
-        .topbar-left h5 {
-            font-size: 1rem;
-            font-weight: 700;
-            color: var(--text-main);
-            margin: 0;
-        }
-        .topbar-right { display: flex; align-items: center; gap: 15px; }
-        .topbar-icon-btn {
-            width: 38px; height: 38px;
-            border-radius: 10px;
-            background: var(--content-bg);
-            border: 1px solid var(--border);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: var(--text-muted);
-            cursor: pointer;
-            font-size: 1rem;
-            text-decoration: none;
-            position: relative;
-            transition: all 0.2s;
-        }
-        .topbar-icon-btn:hover { background: var(--border); color: var(--text-main); }
-        .topbar-icon-btn .notif-dot {
-            position: absolute;
-            top: 6px; right: 6px;
-            width: 8px; height: 8px;
-            background: var(--accent);
-            border-radius: 50%;
-            border: 2px solid white;
-        }
-        .user-avatar {
-            width: 34px; height: 34px;
-            border-radius: 8px;
-            background: linear-gradient(135deg, var(--accent), #c73652);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: white;
-            font-weight: 700;
-            font-size: 0.85rem;
-        }
-        .user-info-text .name {
-            font-size: 0.85rem;
-            font-weight: 600;
-            color: var(--text-main);
-            line-height: 1.2;
-        }
-        .user-info-text .role {
-            font-size: 0.72rem;
-            color: var(--text-muted);
-        }
+    .card-stat {
+        background: white; border-radius: var(--radius);
+        padding: 22px; border: 1px solid #eaecf2;
+        box-shadow: 0 2px 8px rgba(0,0,0,.05);
+        transition: transform .2s, box-shadow .2s;
+    }
+    .card-stat:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(0,0,0,.09); }
+    .stat-icon {
+        width: 46px; height: 46px; border-radius: 12px;
+        display: flex; align-items: center; justify-content: center;
+        font-size: 20px; margin-bottom: 14px;
+    }
+    .stat-val { font-size: 1.9rem; font-weight: 700; color: var(--navy); line-height: 1; }
+    .stat-lbl { color: #6b7a99; font-size: .82rem; margin-top: 4px; }
 
-        /* ===== CONTENT ===== */
-        .content-wrapper { padding: 28px 30px; flex: 1; }
+    .table-card {
+        background: white; border-radius: var(--radius);
+        border: 1px solid #eaecf2; overflow: hidden;
+        box-shadow: 0 2px 8px rgba(0,0,0,.04);
+    }
+    .table-card-header {
+        padding: 18px 22px; border-bottom: 1px solid #eef1f6;
+        display: flex; align-items: center; justify-content: space-between;
+    }
+    .table-card-header h2 { font-size: .95rem; font-weight: 700; color: var(--navy); margin: 0; }
+    .table > thead > tr > th {
+        background: #f8fafc; color: #6b7a99;
+        font-size: .72rem; font-weight: 700;
+        text-transform: uppercase; letter-spacing: .5px;
+        padding: 11px 16px; border-bottom: 1px solid #eef1f6;
+    }
+    .table > tbody > tr > td { padding: 13px 16px; vertical-align: middle; font-size: .875rem; }
+    .table > tbody > tr:hover { background: #fafbfd; }
 
-        /* ===== STATS CARDS ===== */
-        .stat-card {
-            background: var(--card-bg);
-            border-radius: 14px;
-            padding: 22px;
-            border: 1px solid var(--border);
-            display: flex;
-            align-items: center;
-            gap: 18px;
-            transition: all 0.2s;
-        }
-        .stat-card:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 8px 25px rgba(0,0,0,0.08);
-        }
-        .stat-icon {
-            width: 52px; height: 52px;
-            border-radius: 12px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 1.4rem;
-            flex-shrink: 0;
-        }
-        .stat-icon.red    { background: rgba(233,69,96,0.12);  color: var(--accent); }
-        .stat-icon.blue   { background: rgba(99,102,241,0.12); color: var(--accent2); }
-        .stat-icon.green  { background: rgba(16,185,129,0.12); color: #10b981; }
-        .stat-icon.orange { background: rgba(245,158,11,0.12); color: #f59e0b; }
-        .stat-number {
-            font-size: 1.6rem;
-            font-weight: 700;
-            color: var(--text-main);
-            line-height: 1;
-        }
-        .stat-label {
-            font-size: 0.8rem;
-            color: var(--text-muted);
-            margin-top: 3px;
-        }
+    .form-card {
+        background: white; border-radius: var(--radius);
+        padding: 24px; border: 1px solid #eaecf2;
+        box-shadow: 0 2px 8px rgba(0,0,0,.04);
+    }
+    .form-label { font-weight: 600; font-size: .82rem; color: var(--navy); margin-bottom: 6px; }
+    .form-control, .form-select {
+        border-radius: 10px; border: 1.5px solid #e2e8f0;
+        padding: 9px 13px; font-size: .875rem; transition: all .2s;
+    }
+    .form-control:focus, .form-select:focus {
+        border-color: var(--accent); box-shadow: 0 0 0 3px rgba(45,125,210,.15);
+    }
 
-        /* ===== APP CARDS ===== */
-        .app-card {
-            background: var(--card-bg);
-            border-radius: 14px;
-            border: 1px solid var(--border);
-            overflow: hidden;
-        }
-        .app-card-header {
-            padding: 18px 22px;
-            border-bottom: 1px solid var(--border);
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-        }
-        .app-card-header h6 {
-            font-size: 0.95rem;
-            font-weight: 700;
-            color: var(--text-main);
-            margin: 0;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-        .app-card-body { padding: 22px; }
+    .btn-primary-app {
+        background: var(--accent); color: white; border: none;
+        padding: 9px 18px; border-radius: 10px;
+        font-weight: 600; font-size: .855rem; cursor: pointer;
+        text-decoration: none; display: inline-flex;
+        align-items: center; gap: 7px; transition: all .2s;
+    }
+    .btn-primary-app:hover { background: #1a5fa8; color: white; transform: translateY(-1px); }
+    .btn-sm-edit   { background: #e0f2fe; color: #0369a1; border: none; padding: 6px 12px; border-radius: 8px; font-size: .78rem; font-weight: 600; cursor: pointer; }
+    .btn-sm-danger { background: #fee2e2; color: #b91c1c; border: none; padding: 6px 12px; border-radius: 8px; font-size: .78rem; font-weight: 600; cursor: pointer; }
+    .btn-sm-green  { background: #d1fae5; color: #065f46; border: none; padding: 6px 12px; border-radius: 8px; font-size: .78rem; font-weight: 600; cursor: pointer; }
 
-        /* ===== TABLE ===== */
-        .app-table { width: 100%; border-collapse: collapse; }
-        .app-table thead th {
-            padding: 12px 16px;
-            font-size: 0.72rem;
-            text-transform: uppercase;
-            letter-spacing: 0.8px;
-            color: var(--text-muted);
-            font-weight: 600;
-            background: #f8fafc;
-            border-bottom: 1px solid var(--border);
-        }
-        .app-table tbody td {
-            padding: 14px 16px;
-            font-size: 0.875rem;
-            color: var(--text-main);
-            border-bottom: 1px solid #f1f5f9;
-            vertical-align: middle;
-        }
-        .app-table tbody tr:hover { background: #f8fafc; }
-        .app-table tbody tr:last-child td { border-bottom: none; }
+    .badge-role { padding: 4px 10px; border-radius: 20px; font-size: .71rem; font-weight: 700; }
+    .badge-admin      { background: #fef3c7; color: #92400e; }
+    .badge-enseignant { background: #dbeafe; color: #1e40af; }
+    .badge-etudiant   { background: #d1fae5; color: #065f46; }
+    .badge-active     { background: #d1fae5; color: #065f46; padding: 3px 9px; border-radius: 20px; font-size: .71rem; font-weight: 700; }
+    .badge-inactive   { background: #fee2e2; color: #b91c1c; padding: 3px 9px; border-radius: 20px; font-size: .71rem; font-weight: 700; }
 
-        /* ===== BADGES ===== */
-        .status-badge {
-            display: inline-flex;
-            align-items: center;
-            gap: 5px;
-            padding: 4px 10px;
-            border-radius: 20px;
-            font-size: 0.75rem;
-            font-weight: 500;
-        }
-        .status-badge::before {
-            content: '';
-            width: 6px; height: 6px;
-            border-radius: 50%;
-            background: currentColor;
-        }
-        .status-badge.justified  { background: #d1fae5; color: #065f46; }
-        .status-badge.pending    { background: #fee2e2; color: #991b1b; }
-        .status-badge.cancelled  { background: #f1f5f9; color: #64748b; }
-        .status-badge.waiting    { background: #fef3c7; color: #92400e; }
+    .alert { border-radius: 11px; font-size: .875rem; }
+    .modal-content { border-radius: 16px; border: none; }
 
-        /* ===== BUTTONS ===== */
-        .btn-app {
-            display: inline-flex;
-            align-items: center;
-            gap: 7px;
-            padding: 8px 18px;
-            border-radius: 9px;
-            font-size: 0.85rem;
-            font-weight: 500;
-            border: none;
-            cursor: pointer;
-            transition: all 0.2s;
-            text-decoration: none;
-        }
-        .btn-app:hover { transform: translateY(-1px); }
-        .btn-app.primary { background: var(--accent); color: white; }
-        .btn-app.primary:hover { background: #c73652; color: white; }
-        .btn-app.secondary { background: var(--content-bg); color: var(--text-main); border: 1px solid var(--border); }
-        .btn-app.success { background: #d1fae5; color: #065f46; }
-        .btn-app.warning { background: #fef3c7; color: #92400e; }
-        .btn-app.danger  { background: #fee2e2; color: #991b1b; }
-
-        /* ===== FORM ===== */
-        .form-group { margin-bottom: 20px; }
-        .form-label {
-            font-size: 0.85rem;
-            font-weight: 600;
-            color: #374151;
-            margin-bottom: 7px;
-            display: block;
-        }
-        .form-control, .form-select {
-            width: 100%;
-            padding: 10px 14px;
-            border: 1.5px solid var(--border);
-            border-radius: 9px;
-            font-size: 0.875rem;
-            outline: none;
-            transition: all 0.2s;
-            background: white;
-        }
-        .form-control:focus, .form-select:focus {
-            border-color: var(--accent);
-            box-shadow: 0 0 0 3px rgba(233,69,96,0.08);
-        }
-
-        /* ===== ALERTS ===== */
-        .app-alert {
-            padding: 14px 18px;
-            border-radius: 10px;
-            font-size: 0.875rem;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            margin-bottom: 20px;
-        }
-        .app-alert.success { background: #d1fae5; color: #065f46; }
-        .app-alert.error   { background: #fee2e2; color: #991b1b; }
-
-        /* ===== PAGE HEADER ===== */
-        .page-header {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            margin-bottom: 25px;
-        }
-        .page-header h4 {
-            font-size: 1.3rem;
-            font-weight: 700;
-            color: var(--text-main);
-            margin: 0;
-        }
-        .page-header p {
-            font-size: 0.83rem;
-            color: var(--text-muted);
-            margin: 3px 0 0;
-        }
-
-        /* ===== STUDENT CARD ===== */
-        .student-card {
-            background: white;
-            border: 2px solid var(--border);
-            border-radius: 12px;
-            padding: 15px;
-            text-align: center;
-            cursor: pointer;
-            transition: all 0.2s;
-        }
-        .student-card:hover { border-color: #cbd5e1; }
-        .student-card.absent {
-            border-color: var(--accent);
-            background: rgba(233,69,96,0.04);
-        }
-        .student-card img {
-            width: 64px; height: 64px;
-            border-radius: 50%;
-            object-fit: cover;
-            margin-bottom: 8px;
-        }
-        .student-card .name {
-            font-size: 0.8rem;
-            font-weight: 600;
-            color: var(--text-main);
-        }
-        .student-card .absent-mark {
-            display: none;
-            font-size: 0.72rem;
-            color: var(--accent);
-            font-weight: 600;
-        }
-        .student-card.absent .absent-mark { display: block; }
-
-        /* ===== DROPDOWN ===== */
-        .dropdown-menu {
-            border-radius: 12px;
-            border: 1px solid var(--border);
-            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
-            padding: 6px;
-        }
-        .dropdown-item {
-            border-radius: 8px;
-            font-size: 0.875rem;
-            padding: 9px 14px;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-        .dropdown-item:hover { background: #f8fafc; }
+    @media(max-width: 768px) {
+        .sidebar { transform: translateX(-100%); }
+        .sidebar.show { transform: translateX(0); }
+        .main-wrap { margin-left: 0; }
+    }
     </style>
+    @stack('styles')
 </head>
 <body>
 
-<!-- ===== SIDEBAR ===== -->
-<div class="sidebar">
-    <div class="sidebar-brand">
-        <div class="brand-icon"><i class="bi bi-mortarboard-fill"></i></div>
-        <h5>ENSAH Absences</h5>
-        <p>Système de gestion des absences</p>
+<div class="sidebar" id="sidebar">
+    <div class="sidebar-logo">
+        <div class="logo-icon">🎓</div>
+        <div class="logo-text">ENSAH <small>Gestion des Absences</small></div>
     </div>
 
-    @if(session('role') === 'administrateur')
-        <div class="sidebar-section">Administration</div>
-        <a href="{{ route('admin.absences') }}"
-           class="sidebar-link {{ request()->routeIs('admin.absences*') ? 'active' : '' }}">
-            <i class="bi bi-table"></i> Toutes les absences
+    @auth
+    @if(auth()->user()->isAdmin())
+        <div class="nav-section">Principal</div>
+        <a href="{{ route('admin.dashboard') }}" class="nav-link-item {{ request()->routeIs('admin.dashboard') ? 'active' : '' }}">
+            <span class="nav-icon">📊</span> Tableau de bord
         </a>
-        <a href="{{ route('admin.justifications') }}"
-           class="sidebar-link {{ request()->routeIs('admin.justifications*') ? 'active' : '' }}">
-            <i class="bi bi-file-earmark-check"></i> Justifications
+        <div class="nav-section">Modules</div>
+        <a href="{{ route('admin.etudiants.index') }}" class="nav-link-item {{ request()->routeIs('admin.etudiants.*') ? 'active' : '' }}">
+            <span class="nav-icon">👥</span> Étudiants
         </a>
-        <a href="{{ route('admin.reclamations') }}"
-           class="sidebar-link {{ request()->routeIs('admin.reclamations*') ? 'active' : '' }}">
-            <i class="bi bi-chat-left-dots"></i> Réclamations
+        <a href="{{ route('admin.comptes.index') }}" class="nav-link-item {{ request()->routeIs('admin.comptes.*') ? 'active' : '' }}">
+            <span class="nav-icon">🔐</span> Comptes
         </a>
-        <a href="{{ route('admin.saisie.manuelle') }}"
-           class="sidebar-link {{ request()->routeIs('admin.saisie*') ? 'active' : '' }}">
-            <i class="bi bi-keyboard"></i> Saisie manuelle
+        <a href="{{ route('admin.structure.filieres') }}" class="nav-link-item {{ request()->routeIs('admin.structure.*') ? 'active' : '' }}">
+            <span class="nav-icon">🏫</span> Structure Pédagogique
         </a>
-
-    @elseif(session('role') === 'enseignant')
-        <div class="sidebar-section">Enseignant</div>
-        <a href="{{ route('enseignant.saisie') }}"
-           class="sidebar-link {{ request()->routeIs('enseignant.saisie*') ? 'active' : '' }}">
-            <i class="bi bi-pencil-square"></i> Saisir des absences
+        <div class="nav-section">Logs</div>
+        <a href="{{ route('admin.logs.connexion') }}" class="nav-link-item {{ request()->routeIs('admin.logs.*') ? 'active' : '' }}">
+            <span class="nav-icon">📋</span> Logs Connexion
         </a>
-        <a href="{{ route('enseignant.fiche') }}"
-           class="sidebar-link {{ request()->routeIs('enseignant.fiche*') ? 'active' : '' }}">
-            <i class="bi bi-person-lines-fill"></i> Fiche étudiant
+    @elseif(auth()->user()->isEnseignant())
+        <a href="{{ route('enseignant.dashboard') }}" class="nav-link-item active">
+            <span class="nav-icon">📊</span> Mon espace
         </a>
-        <a href="{{ route('enseignant.annulation') }}"
-           class="sidebar-link {{ request()->routeIs('enseignant.annulation*') ? 'active' : '' }}">
-            <i class="bi bi-x-circle"></i> Annuler une absence
-        </a>
-        <a href="{{ route('enseignant.demandes') }}"
-           class="sidebar-link {{ request()->routeIs('enseignant.demandes*') ? 'active' : '' }}">
-            <i class="bi bi-envelope"></i> Demandes de permission
-        </a>
-
-    @elseif(session('role') === 'etudiant')
-        <div class="sidebar-section">Étudiant</div>
-        <a href="{{ route('etudiant.fiche') }}"
-           class="sidebar-link {{ request()->routeIs('etudiant.fiche*') ? 'active' : '' }}">
-            <i class="bi bi-calendar3"></i> Mes absences
-        </a>
-        <a href="{{ route('etudiant.justification') }}"
-           class="sidebar-link {{ request()->routeIs('etudiant.justification*') ? 'active' : '' }}">
-            <i class="bi bi-file-earmark-check"></i> Justifications
-        </a>
-        <a href="{{ route('etudiant.reclamation') }}"
-           class="sidebar-link {{ request()->routeIs('etudiant.reclamation*') ? 'active' : '' }}">
-            <i class="bi bi-chat-left-text"></i> Réclamations
-        </a>
-        <a href="{{ route('etudiant.demande') }}"
-           class="sidebar-link {{ request()->routeIs('etudiant.demande*') ? 'active' : '' }}">
-            <i class="bi bi-send"></i> Demande de permission
-        </a>
-        <a href="{{ route('etudiant.profil') }}"
-           class="sidebar-link {{ request()->routeIs('etudiant.profil*') ? 'active' : '' }}">
-            <i class="bi bi-person-circle"></i> Mon profil
+    @else
+        <a href="{{ route('etudiant.dashboard') }}" class="nav-link-item active">
+            <span class="nav-icon">📊</span> Mon espace
         </a>
     @endif
 
-    <div class="sidebar-bottom">
-        <form method="POST" action="{{ route('logout') }}">
+    <div class="sidebar-footer">
+        <div class="user-card">
+            <div class="user-avatar">{{ strtoupper(substr(auth()->user()->login, 0, 2)) }}</div>
+            <div>
+                <div class="user-name">{{ auth()->user()->login }}</div>
+                <div class="user-role">{{ auth()->user()->role }}</div>
+            </div>
+        </div>
+        <form action="{{ route('logout') }}" method="POST" style="margin-top:10px">
             @csrf
-            <button type="submit" class="sidebar-link"
-                    style="width:100%; background:none; border:none; text-align:left; cursor:pointer;">
-                <i class="bi bi-box-arrow-left"></i> Déconnexion
+            <button type="submit" style="width:100%;background:rgba(255,255,255,.06);border:none;
+                color:rgba(255,255,255,.5);padding:9px;border-radius:9px;font-size:.82rem;cursor:pointer;">
+                🚪 Se déconnecter
             </button>
         </form>
     </div>
+    @endauth
 </div>
 
-<!-- ===== MAIN ===== -->
-<div class="main-wrapper">
-
-    <!-- TOPBAR -->
+<div class="main-wrap">
     <div class="topbar">
-        <div class="topbar-left">
-            <h5>@yield('page_title', 'Tableau de bord')</h5>
+        <div style="display:flex;align-items:center;gap:12px">
+            <button onclick="document.getElementById('sidebar').classList.toggle('show')"
+                class="d-md-none btn btn-sm btn-light">☰</button>
+            <span class="topbar-title">@yield('title', 'Tableau de bord')</span>
         </div>
-        <div class="topbar-right">
-
-            <!-- Notifications -->
-            <a href="#" class="topbar-icon-btn">
-                <i class="bi bi-bell"></i>
-                <span class="notif-dot"></span>
-            </a>
-
-            <!-- User dropdown -->
-            <div class="dropdown">
-                <div class="d-flex align-items-center gap-2 px-3 py-2"
-                     style="border:1px solid var(--border); border-radius:10px; cursor:pointer;"
-                     data-bs-toggle="dropdown" aria-expanded="false">
-                    <div class="user-avatar">
-                        {{ strtoupper(substr(session('role', 'U'), 0, 1)) }}
-                    </div>
-                    <div class="user-info-text">
-                        <div class="name">{{ ucfirst(session('role', 'Utilisateur')) }}</div>
-                        <div class="role">Connecté</div>
-                    </div>
-                    <i class="bi bi-chevron-down ms-1" style="font-size:0.75rem; color:var(--text-muted)"></i>
-                </div>
-
-                <ul class="dropdown-menu dropdown-menu-end mt-2">
-                    <li>
-                        <div style="padding:12px 16px; border-bottom:1px solid var(--border); margin-bottom:4px">
-                            <div style="font-weight:600; font-size:0.875rem; color:var(--text-main)">
-                                {{ ucfirst(session('role', 'Utilisateur')) }}
-                            </div>
-                            <div style="font-size:0.75rem; color:var(--text-muted)">Session active</div>
-                        </div>
-                    </li>
-                    <li>
-                        <form method="POST" action="{{ route('logout') }}">
-                            @csrf
-                            <button type="submit" class="dropdown-item" style="color:#991b1b;">
-                                <i class="bi bi-box-arrow-left"></i> Déconnexion
-                            </button>
-                        </form>
-                    </li>
-                </ul>
-            </div>
-
-        </div>
+        <small style="color:#9aa4b8">{{ now()->format('d/m/Y') }}</small>
     </div>
 
-    <!-- CONTENT -->
-    <div class="content-wrapper">
-
+    <div class="main-content">
         @if(session('success'))
-        <div class="app-alert success">
-            <i class="bi bi-check-circle-fill"></i>
-            {{ session('success') }}
-        </div>
-        @endif
-
-        @if($errors->any())
-        <div class="app-alert error">
-            <i class="bi bi-exclamation-triangle-fill"></i>
-            <div>
-                @foreach($errors->all() as $error)
-                    <div>{{ $error }}</div>
-                @endforeach
+            <div class="alert alert-success alert-dismissible fade show mb-4">
+                {!! session('success') !!}
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
             </div>
-        </div>
+        @endif
+        @if($errors->any())
+            <div class="alert alert-danger alert-dismissible fade show mb-4">
+                <ul class="mb-0">@foreach($errors->all() as $e)<li>{{ $e }}</li>@endforeach</ul>
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
         @endif
 
-        @yield('contenu')
+        @yield('content')
     </div>
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+setTimeout(() => document.querySelectorAll('.alert-dismissible').forEach(a => {
+    try { bootstrap.Alert.getOrCreateInstance(a).close(); } catch(e) {}
+}), 5000);
+</script>
+@stack('scripts')
 </body>
 </html>

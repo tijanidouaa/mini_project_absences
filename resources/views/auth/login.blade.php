@@ -3,367 +3,189 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Connexion — ENSAH</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
+    <title>ENSAH — Connexion</title>
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@300;400;600;700;800&display=swap" rel="stylesheet">
     <style>
-        * { margin:0; padding:0; box-sizing:border-box; }
-        body {
-            min-height: 100vh;
-            display: flex;
-            font-family: 'Segoe UI', sans-serif;
-            background: #f0f4ff;
-        }
-
-        /* ===== PANNEAU GAUCHE ===== */
-        .left-panel {
-            width: 45%;
-            background: linear-gradient(135deg, #4f6ef7 0%, #3b5bdb 40%, #2f4ac7 100%);
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            padding: 50px 40px;
-            position: relative;
-            overflow: hidden;
-        }
-        .left-panel::before {
-            content: '';
-            position: absolute;
-            width: 350px; height: 350px;
-            border-radius: 50%;
-            background: rgba(255,255,255,0.06);
-            top: -80px; left: -80px;
-        }
-        .left-panel::after {
-            content: '';
-            position: absolute;
-            width: 250px; height: 250px;
-            border-radius: 50%;
-            background: rgba(255,255,255,0.06);
-            bottom: -60px; right: -60px;
-        }
-        .left-panel .circle-deco {
-            position: absolute;
-            width: 180px; height: 180px;
-            border-radius: 50%;
-            background: rgba(255,255,255,0.05);
-            top: 50%; left: 60%;
-            transform: translate(-50%, -50%);
-        }
-        .logo-box {
-            width: 110px; height: 110px;
-            background: rgba(255,255,255,0.15);
-            backdrop-filter: blur(10px);
-            border-radius: 28px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            margin-bottom: 28px;
-            border: 1px solid rgba(255,255,255,0.2);
-            position: relative;
-            z-index: 1;
-        }
-        .logo-box img {
-            width: 65px;
-            height: 65px;
-            object-fit: contain;
-        }
-        .logo-box i {
-            font-size: 3rem;
-            color: white;
-        }
-        .left-panel h1 {
-            color: white;
-            font-size: 2.2rem;
-            font-weight: 800;
-            letter-spacing: 1px;
-            margin-bottom: 10px;
-            position: relative;
-            z-index: 1;
-        }
-        .left-panel p {
-            color: rgba(255,255,255,0.8);
-            font-size: 0.95rem;
-            text-align: center;
-            max-width: 280px;
-            line-height: 1.6;
-            position: relative;
-            z-index: 1;
-        }
-        .platform-badge {
-            margin-top: 35px;
-            background: rgba(255,255,255,0.15);
-            backdrop-filter: blur(10px);
-            border: 1px solid rgba(255,255,255,0.2);
-            border-radius: 30px;
-            padding: 10px 22px;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            color: white;
-            font-size: 0.875rem;
-            font-weight: 500;
-            position: relative;
-            z-index: 1;
-        }
-        .platform-badge i { font-size: 1rem; }
-
-        /* ===== PANNEAU DROIT ===== */
-        .right-panel {
-            flex: 1;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            padding: 50px 60px;
-            background: white;
-        }
-        .login-box {
-            width: 100%;
-            max-width: 420px;
-        }
-        .login-box h2 {
-            font-size: 1.8rem;
-            font-weight: 800;
-            color: #1a1a2e;
-            margin-bottom: 6px;
-        }
-        .login-box .subtitle {
-            color: #94a3b8;
-            font-size: 0.9rem;
-            margin-bottom: 35px;
-        }
-
-        /* Error box */
-        .error-box {
-            background: #fff0f0;
-            border: 1px solid #fecaca;
-            border-radius: 12px;
-            padding: 13px 16px;
-            color: #991b1b;
-            font-size: 0.85rem;
-            margin-bottom: 22px;
-            display: flex;
-            align-items: flex-start;
-            gap: 10px;
-        }
-
-        /* Form fields */
-        .field-group { margin-bottom: 20px; }
-        .field-label {
-            font-size: 0.75rem;
-            font-weight: 700;
-            color: #64748b;
-            text-transform: uppercase;
-            letter-spacing: 0.8px;
-            margin-bottom: 8px;
-            display: block;
-        }
-        .field-input-wrap { position: relative; }
-        .field-input-wrap i.left-icon {
-            position: absolute;
-            left: 16px;
-            top: 50%;
-            transform: translateY(-50%);
-            color: #94a3b8;
-            font-size: 1rem;
-        }
-        .field-input-wrap input {
-            width: 100%;
-            padding: 14px 16px 14px 44px;
-            background: #f8fafc;
-            border: 1.5px solid #e2e8f0;
-            border-radius: 14px;
-            font-size: 0.95rem;
-            color: #1a1a2e;
-            outline: none;
-            transition: all 0.2s;
-        }
-        .field-input-wrap input::placeholder { color: #b0bec5; }
-        .field-input-wrap input:focus {
-            border-color: #4f6ef7;
-            background: white;
-            box-shadow: 0 0 0 4px rgba(79,110,247,0.08);
-        }
-        .toggle-password {
-            position: absolute;
-            right: 16px;
-            top: 50%;
-            transform: translateY(-50%);
-            color: #94a3b8;
-            cursor: pointer;
-            font-size: 1rem;
-            background: none;
-            border: none;
-            padding: 0;
-        }
-        .toggle-password:hover { color: #4f6ef7; }
-
-        /* Remember me */
-        .remember-row {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            margin-bottom: 25px;
-        }
-        .remember-row input[type=checkbox] {
-            width: 18px; height: 18px;
-            border-radius: 5px;
-            accent-color: #4f6ef7;
-            cursor: pointer;
-        }
-        .remember-row label {
-            font-size: 0.875rem;
-            color: #64748b;
-            cursor: pointer;
-        }
-
-        /* Submit button */
-        .btn-submit {
-            width: 100%;
-            padding: 15px;
-            background: linear-gradient(135deg, #4f6ef7, #3b5bdb);
-            color: white;
-            border: none;
-            border-radius: 14px;
-            font-size: 1rem;
-            font-weight: 700;
-            cursor: pointer;
-            transition: all 0.3s;
-            letter-spacing: 0.3px;
-        }
-        .btn-submit:hover {
-            background: linear-gradient(135deg, #3b5bdb, #2f4ac7);
-            transform: translateY(-2px);
-            box-shadow: 0 8px 25px rgba(79,110,247,0.35);
-        }
-        .btn-submit:active { transform: translateY(0); }
-
-        /* Footer links */
-        .footer-links {
-            margin-top: 25px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 8px;
-        }
-        .footer-links a {
-            color: #4f6ef7;
-            font-size: 0.875rem;
-            text-decoration: none;
-            font-weight: 500;
-        }
-        .footer-links a:hover { text-decoration: underline; }
-
-        /* Responsive */
-        @media (max-width: 768px) {
-            .left-panel { display: none; }
-            .right-panel { padding: 30px 25px; }
-        }
+    * { margin:0; padding:0; box-sizing:border-box; font-family:'Nunito',sans-serif; }
+    body {
+        min-height: 100vh;
+        background: #4a6cf7;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 20px;
+    }
+    .card {
+        background: white;
+        border-radius: 20px;
+        overflow: hidden;
+        display: flex;
+        width: 100%;
+        max-width: 1000px;
+        min-height: 560px;
+        box-shadow: 0 30px 80px rgba(0,0,0,0.25);
+    }
+    .card-left {
+        flex: 1.1;
+        background: linear-gradient(160deg, #3a56d4 0%, #5b8dee 60%, #4a6cf7 100%);
+        position: relative;
+        overflow: hidden;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+    .circle { position:absolute; border-radius:50%; background: rgba(255,255,255,.07); }
+    .c1 { width:320px; height:320px; bottom:-80px; left:-80px; }
+    .c2 { width:180px; height:180px; top:-40px; right:-40px; }
+    .c3 { width:100px; height:100px; top:40%; right:15%; }
+    .brand { position: relative; z-index:2; text-align: center; padding: 40px; }
+    .brand-logo {
+        width: 120px; height: 120px;
+        background: rgba(255,255,255,.18);
+        border-radius: 28px;
+        display: flex; align-items:center; justify-content:center;
+        margin: 0 auto 24px;
+        border: 2px solid rgba(255,255,255,.25);
+    }
+    .brand-logo span { font-size: 54px; }
+    .brand h1 { color: white; font-size: 1.6rem; font-weight: 800; margin-bottom: 8px; }
+    .brand p { color: rgba(255,255,255,.75); font-size: .9rem; line-height: 1.5; max-width: 220px; margin: 0 auto; }
+    .brand-badge {
+        margin-top: 28px;
+        display: inline-flex; align-items: center; gap: 8px;
+        background: rgba(255,255,255,.15);
+        border: 1px solid rgba(255,255,255,.25);
+        border-radius: 50px; padding: 8px 18px;
+        color: white; font-size: .8rem; font-weight: 700;
+    }
+    .card-right {
+        flex: 1; padding: 56px 52px;
+        display: flex; flex-direction: column; justify-content: center;
+    }
+    .form-title { font-size: 1.55rem; font-weight: 800; color: #1a2340; margin-bottom: 6px; }
+    .form-subtitle { color: #8a94a6; font-size: .875rem; margin-bottom: 36px; }
+    .alert-err {
+        background: #fff5f5; border: 1.5px solid #fed7d7;
+        border-radius: 12px; padding: 12px 16px;
+        color: #c53030; font-size: .85rem; margin-bottom: 22px;
+    }
+    .alert-ok {
+        background: #f0fff4; border: 1.5px solid #c6f6d5;
+        border-radius: 12px; padding: 12px 16px;
+        color: #276749; font-size: .85rem; margin-bottom: 22px;
+    }
+    .field { margin-bottom: 18px; }
+    .field label {
+        display: block; font-size: .78rem; font-weight: 700;
+        color: #4a5568; letter-spacing: .4px;
+        text-transform: uppercase; margin-bottom: 8px;
+    }
+    .field input {
+        width: 100%; padding: 14px 18px;
+        background: #f0f4ff; border: 1.5px solid transparent;
+        border-radius: 50px; font-size: .95rem; color: #1a2340;
+        outline: none; transition: all .25s;
+    }
+    .field input:focus {
+        border-color: #4a6cf7; background: white;
+        box-shadow: 0 0 0 4px rgba(74,108,247,.12);
+    }
+    .field input::placeholder { color: #a0aec0; }
+    .remember { display: flex; align-items: center; gap: 8px; margin-bottom: 26px; }
+    .remember input[type=checkbox] { width: 16px; height: 16px; accent-color: #4a6cf7; }
+    .remember label { font-size: .875rem; color: #4a5568; cursor: pointer; }
+    .input-wrap { position: relative; }
+    .eye-btn {
+        position: absolute; right: 18px; top: 50%;
+        transform: translateY(-50%);
+        background: none; border: none; color: #a0aec0;
+        cursor: pointer; font-size: 16px; padding: 0;
+    }
+    .btn-login {
+        width: 100%; padding: 15px; background: #4a6cf7;
+        color: white; border: none; border-radius: 50px;
+        font-size: 1rem; font-weight: 800; cursor: pointer;
+        transition: all .25s; box-shadow: 0 6px 20px rgba(74,108,247,.4);
+    }
+    .btn-login:hover { background: #3a56d4; transform: translateY(-2px); }
+    .btn-login:disabled { opacity: .7; cursor:not-allowed; transform:none; }
+    .divider { height: 1px; background: #e2e8f0; margin: 24px 0; }
+    .links { text-align: center; }
+    .links a { color: #4a6cf7; font-size: .875rem; font-weight: 600; text-decoration: none; display: block; margin-bottom: 6px; }
+    .links a:hover { text-decoration: underline; }
+    .copyright { text-align: center; margin-top: 28px; color: #a0aec0; font-size: .75rem; }
+    @media(max-width: 680px) {
+        .card { flex-direction: column; }
+        .card-left { min-height: 200px; flex: none; }
+        .card-right { padding: 36px 28px; }
+    }
     </style>
 </head>
 <body>
-
-<!-- PANNEAU GAUCHE -->
-<div class="left-panel">
-    <div class="circle-deco"></div>
-
-    <div class="logo-box">
-        <i class="bi bi-mortarboard-fill"></i>
+<div class="card">
+    <div class="card-left">
+        <div class="circle c1"></div>
+        <div class="circle c2"></div>
+        <div class="circle c3"></div>
+        <div class="brand">
+            <div class="brand-logo"><span>🎓</span></div>
+            <h1>ENSAH</h1>
+            <p>École Nationale des Sciences Appliquées d'Al Hoceima</p>
+            <div class="brand-badge"><span>🏫</span> Plateforme eServices</div>
+        </div>
     </div>
-
-    <h1>ENSAH</h1>
-    <p>École Nationale des Sciences Appliquées d'Al Hoceima</p>
-
-    <div class="platform-badge">
-        <i class="bi bi-grid-3x3-gap-fill"></i>
-        Plateforme eServices
-    </div>
-</div>
-
-<!-- PANNEAU DROIT -->
-<div class="right-panel">
-    <div class="login-box">
-
-        <h2>Plateforme eServices</h2>
-        <p class="subtitle">Connectez-vous pour accéder à votre espace</p>
+    <div class="card-right">
+        <div class="form-title">Plateforme eServices</div>
+        <div class="form-subtitle">Connectez-vous pour accéder à votre espace</div>
 
         @if($errors->any())
-        <div class="error-box">
-            <i class="bi bi-exclamation-triangle-fill" style="margin-top:2px; flex-shrink:0"></i>
-            <div>
-                @foreach($errors->all() as $error)
-                    <div>{{ $error }}</div>
-                @endforeach
-            </div>
-        </div>
+            <div class="alert-err">⚠️ {{ $errors->first() }}</div>
+        @endif
+        @if(session('success'))
+            <div class="alert-ok">✅ {{ session('success') }}</div>
         @endif
 
-        <form method="POST" action="{{ route('login.post') }}">
+        <form method="POST" action="{{ route('login.post') }}" id="loginForm">
             @csrf
-
-            <!-- Identifiant -->
-            <div class="field-group">
-                <label class="field-label">Identifiant (Massar / Login)</label>
-                <div class="field-input-wrap">
-                    <i class="bi bi-person left-icon"></i>
-                    <input type="text"
-                           name="login"
-                           value="{{ old('login') }}"
-                           placeholder="ex: K138454336"
-                           required>
+            <div class="field">
+                <label>Identifiant (Massar / Login)</label>
+                <input type="text" name="login" value="{{ old('login') }}"
+                       placeholder="ex: K138454336" autocomplete="username" required autofocus>
+            </div>
+            <div class="field">
+                <label>Mot de passe</label>
+                <div class="input-wrap">
+                    <input type="password" name="password" id="passInput"
+                           placeholder="••••••••••••••••" autocomplete="current-password" required>
+                    <button type="button" class="eye-btn" onclick="togglePass()">👁</button>
                 </div>
             </div>
-
-            <!-- Mot de passe -->
-            <div class="field-group">
-                <label class="field-label">Mot de passe</label>
-                <div class="field-input-wrap">
-                    <i class="bi bi-lock left-icon"></i>
-                    <input type="password"
-                           name="password"
-                           id="passwordInput"
-                           placeholder="••••••••••••••••"
-                           required>
-                    <button type="button" class="toggle-password" onclick="togglePassword()">
-                        <i class="bi bi-eye" id="eyeIcon"></i>
-                    </button>
-                </div>
-            </div>
-
-            <!-- Se rappeler -->
-            <div class="remember-row">
-                <input type="checkbox" name="remember" id="remember">
+            <div class="remember">
+                <input type="checkbox" name="remember" id="remember" value="1">
                 <label for="remember">Se rappeler de moi</label>
             </div>
-
-            <!-- Bouton -->
-            <button type="submit" class="btn-submit">
-                Se connecter
-            </button>
-
+            <button type="submit" class="btn-login" id="submitBtn">Se connecter</button>
         </form>
 
-        <div class="footer-links">
+        <div class="divider"></div>
+        <div class="links">
             <a href="#">Mot de passe oublié ?</a>
             <a href="#">Questions ?</a>
         </div>
-
+        <div class="copyright">Copyright &copy; {{ date('Y') }} — Tous droits réservés</div>
     </div>
 </div>
-
 <script>
-function togglePassword() {
-    const input = document.getElementById('passwordInput');
-    const icon  = document.getElementById('eyeIcon');
-    if (input.type === 'password') {
-        input.type = 'text';
-        icon.classList.replace('bi-eye', 'bi-eye-slash');
-    } else {
-        input.type = 'password';
-        icon.classList.replace('bi-eye-slash', 'bi-eye');
-    }
+function togglePass() {
+    const p = document.getElementById('passInput');
+    p.type = p.type === 'password' ? 'text' : 'password';
 }
+document.getElementById('loginForm').addEventListener('submit', function() {
+    const btn = document.getElementById('submitBtn');
+    btn.textContent = 'Connexion en cours...';
+    btn.disabled = true;
+});
 </script>
-
 </body>
 </html>

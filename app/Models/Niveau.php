@@ -24,9 +24,9 @@ class Niveau extends Model
         return $this->hasMany(Etudiant::class, 'niveau_id');
     }
 
-    // Un niveau a plusieurs modules
+    // Un niveau a plusieurs modules pédagogiques
     public function modules()
     {
-        return $this->hasMany(Module::class, 'niveau_id');
+        return $this->hasMany(ModulePeda::class, 'niveau_id');
     }
 }

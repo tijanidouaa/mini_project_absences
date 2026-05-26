@@ -1,91 +1,95 @@
 <?php
 
+use App\Http\Controllers\AdminController;
+use App\Http\Controllers\AuthController;
+use App\Http\Controllers\CompteController;
+use App\Http\Controllers\EtudiantController;
+use App\Http\Controllers\StructureController;
 use Illuminate\Support\Facades\Route;
 
-// Controllers Auth
-use App\Http\Controllers\Auth\LoginController;
+// ──────────────────────────────────────────────
+// Auth
+// ──────────────────────────────────────────────
+Route::get('/',       fn() => redirect()->route('login'));
+Route::get('/login',  [AuthController::class, 'showLogin'])->name('login');
+Route::post('/login', [AuthController::class, 'login'])->name('login.post');
+Route::post('/logout',[AuthController::class, 'logout'])->name('logout');
 
-// Controllers Enseignant
-use App\Http\Controllers\Enseignant\SaisieAbsenceController;
-use App\Http\Controllers\Enseignant\AnnulationAbsenceController;
-use App\Http\Controllers\Enseignant\FicheEtudiantController;
-use App\Http\Controllers\Enseignant\DemandePermissionController as EnseignantDemandeController;
+// ──────────────────────────────────────────────
+// Zone Admin
+// ──────────────────────────────────────────────
+Route::middleware(['auth', 'role:administrateur', 'log.action'])
+    ->prefix('admin')
+    ->name('admin.')
+    ->group(function () {
 
-// Controllers Etudiant
-use App\Http\Controllers\Etudiant\FicheAbsenceController;
-use App\Http\Controllers\Etudiant\JustificationController;
-use App\Http\Controllers\Etudiant\ReclamationController;
-use App\Http\Controllers\Etudiant\DemandePermissionController as EtudiantDemandeController;
-use App\Http\Controllers\Etudiant\ProfilController;
+    Route::get('/dashboard',      [AdminController::class, 'dashboard'])->name('dashboard');
+    Route::get('/logs-connexion', [AdminController::class, 'logsConnexion'])->name('logs.connexion');
 
-// Controllers Admin
-use App\Http\Controllers\Admin\AbsenceController;
-use App\Http\Controllers\Admin\JustificationController as AdminJustificationController;
-use App\Http\Controllers\Admin\ReclamationController as AdminReclamationController;
-use App\Http\Controllers\Admin\SaisieManuelleController;
+    // Étudiants
+    Route::get('/etudiants',                      [EtudiantController::class, 'index'])->name('etudiants.index');
+    Route::get('/etudiants/create',               [EtudiantController::class, 'create'])->name('etudiants.create');
+    Route::post('/etudiants',                     [EtudiantController::class, 'store'])->name('etudiants.store');
+    Route::get('/etudiants/{etudiant}/edit',      [EtudiantController::class, 'edit'])->name('etudiants.edit');
+    Route::put('/etudiants/{etudiant}',           [EtudiantController::class, 'update'])->name('etudiants.update');
+    Route::delete('/etudiants/{etudiant}',        [EtudiantController::class, 'destroy'])->name('etudiants.destroy');
+    Route::get('/etudiants/trashed',              [EtudiantController::class, 'trashed'])->name('etudiants.trashed');
+    Route::post('/etudiants/{id}/restore',        [EtudiantController::class, 'restore'])->name('etudiants.restore');
+    Route::get('/etudiants/{etudiant}/historique',[EtudiantController::class, 'historique'])->name('etudiants.historique');
+    Route::get('/etudiants/export-csv',           [EtudiantController::class, 'exportCsv'])->name('etudiants.csv');
 
-// ============================================================
-// AUTHENTIFICATION
-// ============================================================
-Route::get('/', [LoginController::class, 'index'])->name('login');
-Route::post('/login', [LoginController::class, 'login'])->name('login.post');
-Route::post('/logout', [LoginController::class, 'logout'])->name('logout');
+    // Comptes
+    Route::get('/comptes',                          [CompteController::class, 'index'])->name('comptes.index');
+    Route::post('/comptes',                         [CompteController::class, 'store'])->name('comptes.store');
+    Route::post('/comptes/{compte}/toggle-enabled', [CompteController::class, 'toggleEnabled'])->name('comptes.toggle');
+    Route::post('/comptes/{compte}/toggle-locked',  [CompteController::class, 'toggleLocked'])->name('comptes.lock');
+    Route::post('/comptes/{compte}/reset-password', [CompteController::class, 'resetPassword'])->name('comptes.reset');
+    Route::post('/comptes/{compte}/change-role',    [CompteController::class, 'changeRole'])->name('comptes.role');
+    Route::get('/comptes/{compte}/logs',            [CompteController::class, 'logs'])->name('comptes.logs');
+    Route::delete('/comptes/{compte}',              [CompteController::class, 'destroy'])->name('comptes.destroy');
+    Route::get('/comptes/search-person',            [CompteController::class, 'searchPerson'])->name('comptes.search');
 
-// ============================================================
-// ENSEIGNANT
-// ============================================================
-Route::prefix('enseignant')->name('enseignant.')->group(function () {
-   
-    Route::post('/saisie/valider', [SaisieAbsenceController::class, 'valider'])->name('saisie.valider');
-    Route::get('/saisie', [SaisieAbsenceController::class, 'index'])->name('saisie');
-    Route::post('/saisie/etudiants', [SaisieAbsenceController::class, 'getEtudiants'])->name('saisie.etudiants');
-    Route::get('/saisie/etudiants', [SaisieAbsenceController::class, 'index'])->name('saisie.etudiants.get');
-    Route::get('/annulation', [AnnulationAbsenceController::class, 'index'])->name('annulation');
-    Route::post('/annulation/{id}', [AnnulationAbsenceController::class, 'annuler'])->name('annulation.annuler');
+    // Structure Pédagogique
+    Route::get('/structure/filieres',             [StructureController::class, 'filieres'])->name('structure.filieres');
+    Route::post('/structure/filieres',            [StructureController::class, 'storeFiliere'])->name('structure.filieres.store');
+    Route::put('/structure/filieres/{filiere}',   [StructureController::class, 'updateFiliere'])->name('structure.filieres.update');
+    Route::delete('/structure/filieres/{filiere}',[StructureController::class, 'destroyFiliere'])->name('structure.filieres.destroy');
 
-    Route::get('/fiche-etudiant', [FicheEtudiantController::class, 'index'])->name('fiche');
-    Route::post('/fiche-etudiant/chercher', [FicheEtudiantController::class, 'chercher'])->name('fiche.chercher');
+    Route::get('/structure/niveaux',              [StructureController::class, 'niveaux'])->name('structure.niveaux');
+    Route::post('/structure/niveaux',             [StructureController::class, 'storeNiveau'])->name('structure.niveaux.store');
+    Route::put('/structure/niveaux/{niveau}',     [StructureController::class, 'updateNiveau'])->name('structure.niveaux.update');
+    Route::delete('/structure/niveaux/{niveau}',  [StructureController::class, 'destroyNiveau'])->name('structure.niveaux.destroy');
 
-    Route::get('/demandes', [EnseignantDemandeController::class, 'index'])->name('demandes');
-    Route::post('/demandes/{id}/repondre', [EnseignantDemandeController::class, 'repondre'])->name('demandes.repondre');
+    Route::get('/structure/modules',              [StructureController::class, 'modules'])->name('structure.modules');
+    Route::post('/structure/modules',             [StructureController::class, 'storeModule'])->name('structure.modules.store');
+    Route::put('/structure/modules/{module}',     [StructureController::class, 'updateModule'])->name('structure.modules.update');
+    Route::delete('/structure/modules/{module}',  [StructureController::class, 'destroyModule'])->name('structure.modules.destroy');
+
+    Route::get('/structure/elements',             [StructureController::class, 'elements'])->name('structure.elements');
+    Route::post('/structure/elements',            [StructureController::class, 'storeElement'])->name('structure.elements.store');
+    Route::put('/structure/elements/{element}',   [StructureController::class, 'updateElement'])->name('structure.elements.update');
+    Route::delete('/structure/elements/{element}',[StructureController::class, 'destroyElement'])->name('structure.elements.destroy');
+
+    Route::get('/structure/import',               [StructureController::class, 'importForm'])->name('structure.import');
+    Route::post('/structure/import',              [StructureController::class, 'import'])->name('structure.import.post');
 });
 
-// ============================================================
-// ETUDIANT
-// ============================================================
-Route::prefix('etudiant')->name('etudiant.')->group(function () {
-    Route::get('/fiche', [FicheAbsenceController::class, 'index'])->name('fiche');
-
-    Route::get('/justification', [JustificationController::class, 'index'])->name('justification');
-    Route::post('/justification/envoyer', [JustificationController::class, 'envoyer'])->name('justification.envoyer');
-
-    Route::get('/reclamation', [ReclamationController::class, 'index'])->name('reclamation');
-    Route::post('/reclamation/envoyer', [ReclamationController::class, 'envoyer'])->name('reclamation.envoyer');
-
-    Route::get('/demande-permission', [EtudiantDemandeController::class, 'index'])->name('demande');
-    Route::post('/demande-permission/envoyer', [EtudiantDemandeController::class, 'envoyer'])->name('demande.envoyer');
-
-    Route::get('/profil', [ProfilController::class, 'index'])->name('profil');
-    Route::post('/profil/modifier', [ProfilController::class, 'modifier'])->name('profil.modifier');
+// ──────────────────────────────────────────────
+// Zone Enseignant
+// ──────────────────────────────────────────────
+Route::middleware(['auth', 'role:enseignant', 'log.action'])
+    ->prefix('enseignant')
+    ->name('enseignant.')
+    ->group(function () {
+    Route::get('/dashboard', fn() => view('enseignant.dashboard'))->name('dashboard');
 });
 
-// ============================================================
-// ADMIN
-// ============================================================
-Route::prefix('admin')->name('admin.')->group(function () {
-    Route::get('/absences', [AbsenceController::class, 'index'])->name('absences');
-    Route::get('/absences/{id}/modifier', [AbsenceController::class, 'modifier'])->name('absences.modifier');
-    Route::post('/absences/{id}/update', [AbsenceController::class, 'update'])->name('absences.update');
-    Route::post('/absences/{id}/annuler', [AbsenceController::class, 'annuler'])->name('absences.annuler');
-    Route::post('/absences/{id}/justifier', [AbsenceController::class, 'justifier'])->name('absences.justifier');
-
-    Route::get('/justifications', [AdminJustificationController::class, 'index'])->name('justifications');
-    Route::post('/justifications/{id}/traiter', [AdminJustificationController::class, 'traiter'])->name('justifications.traiter');
-
-    Route::get('/reclamations', [AdminReclamationController::class, 'index'])->name('reclamations');
-    Route::post('/reclamations/{id}/repondre', [AdminReclamationController::class, 'repondre'])->name('reclamations.repondre');
-
-    Route::get('/saisie-manuelle', [SaisieManuelleController::class, 'index'])->name('saisie.manuelle');
-    Route::post('/saisie-manuelle/verifier', [SaisieManuelleController::class, 'verifier'])->name('saisie.manuelle.verifier');
-    Route::post('/saisie-manuelle/valider', [SaisieManuelleController::class, 'valider'])->name('saisie.manuelle.valider');
+// ──────────────────────────────────────────────
+// Zone Étudiant
+// ──────────────────────────────────────────────
+Route::middleware(['auth', 'role:etudiant', 'log.action'])
+    ->prefix('etudiant')
+    ->name('etudiant.')
+    ->group(function () {
+    Route::get('/dashboard', fn() => view('etudiant.dashboard'))->name('dashboard');
 });

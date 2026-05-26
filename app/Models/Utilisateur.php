@@ -1,15 +1,18 @@
 <?php
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Model;
+use Illuminate\Foundation\Auth\User as Authenticatable;
+use Illuminate\Notifications\Notifiable;
 
-class Utilisateur extends Model
+class Utilisateur extends Authenticatable
 {
+    use Notifiable;
+
     protected $table = 'utilisateurs';
 
     protected $fillable = [
         'login',
-        'password_hash',
+        'password',
         'role',
         'personne_id',
         'enabled',
@@ -17,15 +20,32 @@ class Utilisateur extends Model
         'tentatives',
     ];
 
-    // Cacher le mot de passe dans les réponses
     protected $hidden = [
-        'password_hash',
+        'password',
+        'remember_token',
     ];
 
-    // Un utilisateur a plusieurs notifications
-    public function notifications()
+    protected $casts = [
+        'enabled' => 'boolean',
+        'locked'  => 'boolean',
+    ];
+
+    // Utiliser 'login' comme identifiant d'authentification
+    public function getAuthIdentifierName(): string
     {
-        return $this->hasMany(Notification::class, 'utilisateur_id');
+        return 'login';
+    }
+
+    // Relation vers l'étudiant lié
+    public function etudiant()
+    {
+        return $this->belongsTo(Etudiant::class, 'personne_id');
+    }
+
+    // Relation vers l'enseignant lié
+    public function enseignant()
+    {
+        return $this->belongsTo(Enseignant::class, 'personne_id');
     }
 
     // Un utilisateur a plusieurs logs de connexion
@@ -38,5 +58,31 @@ class Utilisateur extends Model
     public function logsActions()
     {
         return $this->hasMany(LogAction::class, 'utilisateur_id');
+    }
+
+    // Helpers rôles
+    public function isAdmin(): bool
+    {
+        return $this->role === 'administrateur';
+    }
+
+    public function isEnseignant(): bool
+    {
+        return $this->role === 'enseignant';
+    }
+
+    public function isEtudiant(): bool
+    {
+        return $this->role === 'etudiant';
+    }
+
+    // Accessor : nom complet selon le rôle
+    public function getNomCompletAttribute(): string
+    {
+        return match ($this->role) {
+            'etudiant'   => optional($this->etudiant)->prenom_fr . ' ' . optional($this->etudiant)->nom_fr,
+            'enseignant' => optional($this->enseignant)->prenom_fr . ' ' . optional($this->enseignant)->nom_fr,
+            default      => $this->login,
+        };
     }
 }

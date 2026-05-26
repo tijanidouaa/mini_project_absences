@@ -34,14 +34,12 @@ return [
     | Supported: "session"
     |
     */
-
     'guards' => [
         'web' => [
             'driver' => 'session',
-            'provider' => 'users',
+            'provider' => 'utilisateurs',
         ],
     ],
-
     /*
     |--------------------------------------------------------------------------
     | User Providers
@@ -60,15 +58,10 @@ return [
     */
 
     'providers' => [
-        'users' => [
+        'utilisateurs' => [
             'driver' => 'eloquent',
-            'model' => env('AUTH_MODEL', App\Models\User::class),
+            'model'  => App\Models\Utilisateur::class,
         ],
-
-        // 'users' => [
-        //     'driver' => 'database',
-        //     'table' => 'users',
-        // ],
     ],
 
     /*

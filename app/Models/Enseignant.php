@@ -5,10 +5,8 @@ use Illuminate\Database\Eloquent\Model;
 
 class Enseignant extends Model
 {
-    // Nom de la table dans la BDD
     protected $table = 'enseignants';
 
-    // Colonnes que l'on peut remplir
     protected $fillable = [
         'nom_fr',
         'prenom_fr',
@@ -35,5 +33,17 @@ class Enseignant extends Model
     public function filieres()
     {
         return $this->hasMany(Filiere::class, 'coordonnateur_id');
+    }
+
+    // Lien vers le compte utilisateur
+    public function compte()
+    {
+        return $this->hasOne(Utilisateur::class, 'personne_id')->where('role', 'enseignant');
+    }
+
+    // Accessor : nom complet
+    public function getNomCompletAttribute(): string
+    {
+        return $this->prenom_fr . ' ' . $this->nom_fr;
     }
 }

@@ -5,18 +5,17 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration {
     public function up(): void {
-        Schema::create('logs_connexion', function (Blueprint $table) {
+        Schema::create('logs_actions', function (Blueprint $table) {
             $table->id();
             $table->foreignId('utilisateur_id')
                   ->constrained('utilisateurs')
-                  ->onDelete('cascade');
-            $table->string('adresse_ip', 45);
-            $table->dateTime('date_heure');
+                  ->cascadeOnDelete();
+            $table->string('page_visitee', 255)->nullable();
+            $table->dateTime('date_heure')->nullable();
             $table->timestamps();
         });
     }
-
     public function down(): void {
-        Schema::dropIfExists('logs_connexion');
+        Schema::dropIfExists('logs_actions');
     }
 };

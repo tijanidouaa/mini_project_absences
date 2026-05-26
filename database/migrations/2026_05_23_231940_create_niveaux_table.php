@@ -9,7 +9,7 @@ return new class extends Migration {
             $table->id();
             $table->foreignId('filiere_id')
                   ->constrained('filieres')
-                  ->onDelete('cascade');
+                  ->cascadeOnDelete();
             $table->string('libelle', 100);
             $table->timestamps();
         });
