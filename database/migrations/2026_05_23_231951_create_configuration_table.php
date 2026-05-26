@@ -11,8 +11,10 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('logs_actions', function (Blueprint $table) {
+        Schema::create('configuration', function (Blueprint $table) {
             $table->id();
+            $table->string('cle', 100)->unique();
+            $table->string('valeur', 255);
             $table->timestamps();
         });
     }
@@ -22,6 +24,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('logs_actions');
+        Schema::dropIfExists('configuration');
     }
 };

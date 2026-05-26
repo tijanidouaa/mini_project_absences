@@ -11,8 +11,13 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('historique_modifications', function (Blueprint $table) {
+             Schema::create('historique_modifications', function (Blueprint $table) {
             $table->id();
+            $table->foreignId('etudiant_id')->constrained('etudiants')->cascadeOnDelete();
+            $table->foreignId('utilisateur_id')->constrained('utilisateurs')->cascadeOnDelete();
+            $table->string('champ_modifie', 100);
+            $table->text('ancienne_valeur')->nullable();
+            $table->text('nouvelle_valeur')->nullable();
             $table->timestamps();
         });
     }
